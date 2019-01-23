@@ -26,7 +26,7 @@ RUN apt-get update --fix-missing && \
 RUN export CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)" && \
     echo "deb http://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
     curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
-    
+
 # R pre-requisites
 RUN apt-get update --fix-missing && \
     apt-get install -y --no-install-recommends \
@@ -84,33 +84,5 @@ USER root
 #    tar -vxzf swift-tensorflow-DEVELOPMENT-2019-01-04-a-ubuntu16.04.tar.gz && \
 #    rm *.tar.gz
 #ENV PATH /opt/swift/usr/bin:${PATH}
-
-USER $NB_UID
-
-# Extra Jupyter extensions
-
-# Server proxy
-RUN pip install jupyter-server-proxy jupyter-rsession-proxy && \
-    jupyter labextension install jupyterlab-server-proxy
-
-# Git support: https://github.com/jupyterlab/jupyterlab-git
-RUN jupyter labextension install @jupyterlab/git && \
-    pip install jupyterlab-git && \
-    jupyter serverextension enable --py jupyterlab_git
-
-# HTML support: https://github.com/mflevine/jupyterlab_html
-RUN jupyter labextension install @mflevine/jupyterlab_html
-
-# Latex support: https://github.com/jupyterlab/jupyterlab-latex
-RUN pip install jupyterlab_latex && \
-    jupyter labextension install @jupyterlab/latex
-
-USER root
-
-COPY hooks/start-notebook.d /usr/local/bin/start-notebook.d
-COPY hooks/before-notebook.d /usr/local/bin/before-notebook.d
-
-# Spark config
-COPY spark/spark-defaults.conf /usr/local/spark/conf/spark-defaults.conf
 
 USER $NB_UID
