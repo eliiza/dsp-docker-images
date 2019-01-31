@@ -30,3 +30,5 @@ xlrd
 boto3
 keras-gpu=2.2.*
 tensorflow-gpu=1.12.*
+gcsfs
+dask[complete]
