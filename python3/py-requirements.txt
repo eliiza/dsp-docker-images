@@ -28,5 +28,5 @@ beautifulsoup4=4.6.*
 protobuf=3.*
 xlrd
 boto3
-keras
-tensorflow
+keras-gpu=2.2.*
+tensorflow-gpu=1.12.*

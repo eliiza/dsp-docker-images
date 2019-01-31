@@ -32,3 +32,5 @@ r-protolite
 r-rgdal
 r-rgeos
 r-maptools
+r-aws.signature
+r-keras
