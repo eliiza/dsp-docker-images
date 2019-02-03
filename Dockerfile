@@ -51,7 +51,17 @@ RUN apt-get update --fix-missing && \
     libgdal-dev \
     libgdal20 \
     libgeos-dev \
-    google-cloud-sdk && \
+    google-cloud-sdk \
+    zlib1g-dev \
+    libjpeg-dev \
+    cmake \
+    swig \
+    libboost-all-dev \
+    libsdl2-dev \
+    libosmesa6-dev \
+    patchelf \
+    ffmpeg \
+    xvfb && \
     rm -rf /var/lib/apt/lists/*
 
 RUN fix-permissions $CONDA_DIR && \
@@ -61,6 +71,10 @@ RUN fix-permissions $CONDA_DIR && \
 
 USER $NB_UID
 
+###
+### R
+###
+
 # R packages
 COPY R/r-requirements.txt /tmp/r-requirements.txt
 RUN conda install --yes -c r --file /tmp/r-requirements.txt && \
@@ -69,10 +83,30 @@ RUN conda install --yes -c r --file /tmp/r-requirements.txt && \
 # COPY R/install.R /tmp/install.R
 # RUN Rscript --slave --no-save --no-restore-history /tmp/install.R
 
+###
+### PYTHON
+###
+
 # Install extra python libs
 COPY python3/py-requirements.txt /tmp/py-requirements.txt
-RUN conda install --yes --file /tmp/py-requirements.txt
 
+# Conda packages
+RUN conda install --yes --file /tmp/py-requirements.txt && \
+    conda clean -tipsy
+
+# PIP packages
+RUN pip install fpdf
+
+# OpenAI GYM package
+RUN git clone https://github.com/openai/gym.git && \
+    cd gym && \
+    pip install -e . && \
+    cd .. && \
+    rm -Rf gym
+
+###
+### Swift
+###
 
 # Install Swift
 USER root
