@@ -33,3 +33,4 @@ tensorflow-gpu=1.12.*
 pyglet
 pyopengl
 prettytable
+dask
