@@ -28,8 +28,8 @@ beautifulsoup4=4.6.*
 protobuf=3.*
 xlrd
 boto3
-keras-gpu=2.2.*
-tensorflow-gpu=1.12.*
+keras=2.2.*
+tensorflow=1.12.*
 pyglet
 fastparquet
 pyarrow
