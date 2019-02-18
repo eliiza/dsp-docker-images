@@ -38,3 +38,7 @@ prettytable
 gcsfs
 dask[complete]
 dask-kubernetes
+s3fs
+simplejson
+pymysql
+sqlite
