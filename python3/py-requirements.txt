@@ -42,3 +42,5 @@ s3fs
 simplejson
 pymysql
 sqlite
+google-api-python-client
+
