@@ -162,19 +162,4 @@ RUN git clone https://github.com/openai/gym.git && \
     cd .. && \
     rm -Rf gym
 
-###
-### Swift
-###
-
-# Install Swift
-USER root
-#RUN mkdir -p /opt/swift && \
-#    cd /opt/swift && \
-#    apt update -y && \
-#    apt install -y clang libcurl3 libicu-dev libpython-dev libncurses5-dev && \
-#    wget https://storage.googleapis.com/swift-tensorflow/ubuntu16.04/swift-tensorflow-DEVELOPMENT-2019-01-04-a-ubuntu16.04.tar.gz && \
-#    tar -vxzf swift-tensorflow-DEVELOPMENT-2019-01-04-a-ubuntu16.04.tar.gz && \
-#    rm *.tar.gz
-#ENV PATH /opt/swift/usr/bin:${PATH}
-
 USER $NB_UID
