@@ -37,6 +37,8 @@ pyopengl
 prettytable
 gcsfs
 dask[complete]
+dask-ml
+dask-tensorflow
 dask-kubernetes
 s3fs
 simplejson
