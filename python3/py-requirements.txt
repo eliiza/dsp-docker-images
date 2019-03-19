@@ -39,6 +39,7 @@ gcsfs
 dask[complete]
 dask-ml
 dask-tensorflow
+dask-xgboost
 dask-kubernetes
 s3fs
 simplejson
