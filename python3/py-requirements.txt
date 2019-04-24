@@ -41,6 +41,9 @@ dask-ml
 dask-tensorflow
 dask-xgboost
 dask-kubernetes
+dask-cuml
+dask-cuda
+dask-cudf
 s3fs
 simplejson
 pymysql

@@ -152,14 +152,14 @@ COPY python3/py-requirements.txt /tmp/py-requirements.txt
 RUN conda install --yes --file /tmp/py-requirements.txt && \
     conda clean -tipsy
 
-# PIP packages
-RUN pip install fpdf
-
 # OpenAI GYM package
 RUN git clone https://github.com/openai/gym.git && \
     cd gym && \
     pip install -e . && \
     cd .. && \
     rm -Rf gym
+
+# PIP packages
+RUN pip install fpdf gym
 
 USER $NB_UID
