@@ -41,9 +41,6 @@ dask-ml
 dask-tensorflow
 dask-xgboost
 dask-kubernetes
-dask-cuml
-dask-cuda
-dask-cudf
 bokeh
 s3fs
 simplejson

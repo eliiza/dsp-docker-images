@@ -160,6 +160,10 @@ RUN git clone https://github.com/openai/gym.git && \
     rm -Rf gym
 
 # PIP packages
-RUN pip install fpdf gym
+RUN pip install fpdf \
+    gym \
+    dask-cuda \
+    dask-cudf \
+    dask-cuml
 
 USER $NB_UID
