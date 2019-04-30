@@ -7,9 +7,9 @@ jupyter_client
 numpy
 pandas
 numexpr=2.6*
-matplotlib=3.0*
+matplotlib
 scipy=1.1*
-seaborn=0.9*
+seaborn
 scikit-learn=0.20*
 scikit-image=0.14*
 sympy=1.1*
@@ -40,7 +40,6 @@ dask[complete]
 dask-ml
 dask-tensorflow
 dask-xgboost
-dask-kubernetes
 s3fs
 simplejson
 pymysql

@@ -35,6 +35,7 @@ RUN pip install fpdf \
     gym \
     dask-cuda \
     dask-cudf \
-    dask-cuml
+    dask-cuml \
+    dask-kubernetes
 
 USER $NB_UID
