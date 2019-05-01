@@ -2,7 +2,7 @@ conda-forge::blas=*=openblas
 pycrypto
 cffi
 ipykernel
-ipython
+ipython=7.3.0
 jupyter_client
 numpy
 pandas
