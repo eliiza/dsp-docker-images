@@ -1,0 +1,9 @@
+fpdf
+gym
+dask-cuda
+dask-cudf
+dask-cuml
+dask-kubernetes
+git+https://github.com/javabrett/dask-xgboost@master
+matplotlib
+seaborn

@@ -17,10 +17,10 @@ RUN conda install --yes -c r --file /tmp/r-requirements.txt && \
 ###
 
 # Install extra python libs
-COPY python3/py-requirements.txt /tmp/py-requirements.txt
+COPY python3/conda-requirements.txt /tmp/python3/conda-requirements.txt
 
 # Conda packages
-RUN conda install --yes --file /tmp/py-requirements.txt && \
+RUN conda install --yes -c conda-forge -c defaults --file /tmp/python3/conda-requirements.txt && \
     conda clean -tipsy
 
 # OpenAI GYM package
@@ -31,11 +31,7 @@ RUN git clone https://github.com/openai/gym.git && \
     rm -Rf gym
 
 # PIP packages
-RUN pip install fpdf \
-    gym \
-    dask-cuda \
-    dask-cudf \
-    dask-cuml \
-    dask-kubernetes
+COPY python3/pip-requirements.txt /tmp/python3/pip-requirements.txt
+RUN pip install -r /tmp/python3/pip-requirements.txt
 
 USER $NB_UID
