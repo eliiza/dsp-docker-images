@@ -1,4 +1,4 @@
-FROM eliiza/dsp-base:latest
+FROM eliiza/dsp-data-science:latest
 
 LABEL maintainer="Ray Hilton <ray.hilton@eliiza.com.au>"
 
