@@ -3,7 +3,8 @@ gym
 dask-cuda
 dask-cudf
 dask-cuml
+dask-ml
 dask-kubernetes
-git+https://github.com/javabrett/dask-xgboost@master
+git+https://github.com/javabrett/dask-xgboost@23-rabit-tracker-bind-address
 matplotlib
 seaborn
