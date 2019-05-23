@@ -11,7 +11,7 @@ scipy
 scikit-learn
 scikit-image
 sympy
-cython=0.28*
+cython
 patsy=0.5*
 statsmodels=0.9*
 cloudpickle
@@ -41,3 +41,7 @@ pymysql
 sqlite
 google-api-python-client
 oauth2client
+python-snappy
+cuml
+cudf=0.7
+cudatoolkit=10.0
