@@ -1,4 +1,4 @@
-FROM eliiza/dsp-data-science:latest
+FROM eliiza/dsp-base:cuda9.2
 
 USER root
 

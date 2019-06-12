@@ -6,6 +6,36 @@ import subprocess
 import os
 import errno
 import stat
+from notebook.notebookapp import NotebookWebApplication
+from notebook.utils import url_path_join
+
+def fixed__init__(self, jupyter_app, kernel_manager, contents_manager,
+                 session_manager, kernel_spec_manager,
+                 config_manager, extra_services, log,
+                 base_url, default_url, settings_overrides, jinja_env_options):
+
+        settings = self.init_settings(
+            jupyter_app, kernel_manager, contents_manager,
+            session_manager, kernel_spec_manager, config_manager,
+            extra_services, log, base_url,
+            default_url, settings_overrides, jinja_env_options)
+        handlers = self.init_handlers(settings)
+        modified_handlers = []
+
+        for handler in handlers:
+            if '@' in handler[0] and handler[0].startswith('/' + c.NotebookApp.base_url):
+                unescaped_path = handler[0].replace('@', r'%40')
+                modified_handlers.append(tuple([handler[0]] + list(handler[1:])))
+                modified_handlers.append(tuple([unescaped_path] + list(handler[1:])))
+            else:
+                modified_handlers.append(handler)
+
+        print("\n".join([str(x) for x in modified_handlers]))
+
+        super(NotebookWebApplication, self).__init__(modified_handlers, **settings)
+
+NotebookWebApplication.__init__ = fixed__init__
+
 
 c = get_config()
 c.NotebookApp.ip = '0.0.0.0'
@@ -53,8 +83,3 @@ distinguished_name = req_distinguished_name
 # the environment
 if 'NB_UMASK' in os.environ:
     os.umask(int(os.environ['NB_UMASK'], 8))
-
-
-c.NotebookApp.nbserver_extensions = {
-    "jupyterlab_git": True
-}
