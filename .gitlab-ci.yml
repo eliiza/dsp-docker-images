@@ -81,7 +81,7 @@ push:tag:base:
     CI_REGISTRY_IMAGE: eliiza/dsp-base
     GIT_STRATEGY: none
   only:
-    - tags
+    - cuda9.2
 
 push:tag:common-notebook:
   <<: *push_latest_script
@@ -90,4 +90,4 @@ push:tag:common-notebook:
     CI_REGISTRY_IMAGE: eliiza/common-notebook
     GIT_STRATEGY: none
   only:
-    - tags
+    - cuda9.2
