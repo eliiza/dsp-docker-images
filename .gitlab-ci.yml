@@ -57,7 +57,7 @@ build:common-notebook:
 
 # Here, the goal is to tag the "master" branch as "latest"
 push:latest:base:
-  <<: *push_latest_script
+  <<: *push_script
   variables:
     TAG_NAME: latest
     CI_REGISTRY_IMAGE: eliiza/dsp-base
@@ -66,7 +66,7 @@ push:latest:base:
     - master
 
 push:latest:common-notebook:
-  <<: *push_latest_script
+  <<: *push_script
   variables:
     TAG_NAME: latest
     CI_REGISTRY_IMAGE: eliiza/common-notebook
@@ -75,7 +75,7 @@ push:latest:common-notebook:
     - master
 
 push:tag:base:
-  <<: *push_latest_script
+  <<: *push_script
   variables:
     TAG_NAME: $CI_COMMIT_REF_NAME
     CI_REGISTRY_IMAGE: eliiza/dsp-base
@@ -84,7 +84,7 @@ push:tag:base:
     - cuda9.2
 
 push:tag:common-notebook:
-  <<: *push_latest_script
+  <<: *push_script
   variables:
     TAG_NAME: $CI_COMMIT_REF_NAME
     CI_REGISTRY_IMAGE: eliiza/common-notebook
