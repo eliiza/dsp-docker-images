@@ -1,0 +1,93 @@
+# This is a GitLab CI configuration to build the project as a docker image
+# The file is generic enough to be dropped in a project containing a working Dockerfile
+# Author: Florent CHAUVEAU <florent.chauveau@gmail.com>
+# Mentioned here: https://blog.callr.tech/building-docker-images-with-gitlab-ci-best-practices/
+
+# do not use "latest" here, if you want this to work in the future
+image: docker:18
+
+stages:
+  - build
+  - push
+
+before_script:
+  # docker login asks for the password to be passed through stdin for security
+  # we use $CI_JOB_TOKEN here which is a special token provided by GitLab
+  - echo -n $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin $CI_REGISTRY
+
+.build_script: &build_script
+  stage: build
+  script:
+    - cd $DOCKERFILE_DIR
+    # fetches the latest image (not failing if image is not found)
+    - docker pull $CI_REGISTRY_IMAGE:latest || true
+    # builds the project, passing proxy variables, and vcs vars for LABEL
+    # notice the cache-from, which is going to use the image we just pulled locally
+    # the built image is tagged locally with the commit SHA, and then pushed to
+    # the GitLab registry
+    - >
+      docker build
+      --pull
+      --build-arg VCS_REF=$CI_COMMIT_SHA
+      --build-arg VCS_URL=$CI_PROJECT_URL
+      --cache-from $CI_REGISTRY_IMAGE:latest
+      --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+      .
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+    - cd ..
+
+.push_script: &push_script
+  stage: push
+  script:
+    - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+    - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA $CI_REGISTRY_IMAGE:$TAG_NAME
+    - docker push $CI_REGISTRY_IMAGE:$TAG_NAME
+
+build:base:
+  <<: *build_script
+  variables:
+    DOCKERFILE_DIR: base
+    CI_REGISTRY_IMAGE: eliiza/dsp-base
+
+build:common-notebook:
+  <<: *build_script
+  variables:
+    DOCKERFILE_DIR: common-notebook
+    CI_REGISTRY_IMAGE: eliiza/common-notebook
+
+# Here, the goal is to tag the "master" branch as "latest"
+push:latest:base:
+  <<: *push_latest_script
+  variables:
+    TAG_NAME: latest
+    CI_REGISTRY_IMAGE: eliiza/dsp-base
+    GIT_STRATEGY: none
+  only:
+    - master
+
+push:latest:common-notebook:
+  <<: *push_latest_script
+  variables:
+    TAG_NAME: latest
+    CI_REGISTRY_IMAGE: eliiza/common-notebook
+    GIT_STRATEGY: none
+  only:
+    - master
+
+push:tag:base:
+  <<: *push_latest_script
+  variables:
+    TAG_NAME: $CI_COMMIT_REF_NAME
+    CI_REGISTRY_IMAGE: eliiza/dsp-base
+    GIT_STRATEGY: none
+  only:
+    - tags
+
+push:tag:common-notebook:
+  <<: *push_latest_script
+  variables:
+    TAG_NAME: $CI_COMMIT_REF_NAME
+    CI_REGISTRY_IMAGE: eliiza/common-notebook
+    GIT_STRATEGY: none
+  only:
+    - tags

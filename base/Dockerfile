@@ -170,3 +170,16 @@ RUN git clone https://github.com/openai/gym.git && \
 # PIP packages
 COPY python3/pip-requirements.txt /tmp/python3/pip-requirements.txt
 RUN pip install -r /tmp/python3/pip-requirements.txt
+
+
+###
+### R
+###
+
+# R packages
+COPY R/r-requirements.txt /tmp/r-requirements.txt
+RUN conda install --yes -c r --file /tmp/r-requirements.txt && \
+    conda clean -tipsy
+
+# COPY R/install.R /tmp/install.R
+# RUN Rscript --slave --no-save --no-restore-history /tmp/install.R

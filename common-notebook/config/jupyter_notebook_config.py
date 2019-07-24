@@ -23,7 +23,7 @@ def fixed__init__(self, jupyter_app, kernel_manager, contents_manager,
         modified_handlers = []
 
         for handler in handlers:
-            if '@' in handler[0] and handler[0].startswith('/' + c.NotebookApp.base_url):
+            if '@' in handler[0]:
                 unescaped_path = handler[0].replace('@', r'%40')
                 modified_handlers.append(tuple([handler[0]] + list(handler[1:])))
                 modified_handlers.append(tuple([unescaped_path] + list(handler[1:])))

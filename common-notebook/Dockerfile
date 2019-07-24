@@ -115,22 +115,19 @@ USER $NB_UID
 
 
 ### Theia
-#RUN pip install python-language-server[all] pyls-mypy pyls-isort pyls-black
-#USER root
-#COPY theia /opt/theia
-# RUN chown -R root /opt/theia && \
-#     cd /opt/theia && \
-#     npm install -g yarn && \
-#     yarn && \
-#     yarn theia build && \
-#     rm -rf /opt/theia/node_modules/electron && \
-#     yarn cache clean
-# ENV PATH=/opt/theia/node_modules/.bin:$PATH
-#
-# RUN cd /opt/theia/proxy && \
-#     python setup.py build && \
-#     python setup.py install
-#
-# RUN chown -R $NB_UID /opt/theia
-#
-# USER $NB_UID
+RUN pip install python-language-server[all] pyls-mypy pyls-isort pyls-black
+USER root
+COPY theia /opt/theia
+RUN chown -R root /opt/theia && \
+    cd /opt/theia && \
+    npm install -g yarn && \
+    yarn && \
+    yarn theia build && \
+    rm -rf /opt/theia/node_modules/electron && \
+    yarn cache clean
+ENV PATH=/opt/theia/node_modules/.bin:$PATH
+RUN cd /opt/theia/proxy && \
+    python setup.py build && \
+    python setup.py install
+RUN chown -R $NB_UID /opt/theia
+USER $NB_UID
