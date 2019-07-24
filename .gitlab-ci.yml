@@ -7,8 +7,10 @@
 image: docker:18
 
 stages:
-  - build
-  - push
+  - build:base
+  - push:base
+  - build:common-notebook
+  - push:common-notebook
 
 before_script:
   # docker login asks for the password to be passed through stdin for security
@@ -16,7 +18,6 @@ before_script:
   - echo -n $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin $CI_REGISTRY
 
 .build_script: &build_script
-  stage: build
   script:
     - cd $DOCKERFILE_DIR
     # fetches the latest image (not failing if image is not found)
@@ -37,7 +38,6 @@ before_script:
     - cd ..
 
 .push_script: &push_script
-  stage: push
   script:
     - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
     - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA $CI_REGISTRY_IMAGE:$TAG_NAME
@@ -45,12 +45,14 @@ before_script:
 
 build:base:
   <<: *build_script
+  stage: build:base
   variables:
     DOCKERFILE_DIR: base
     CI_REGISTRY_IMAGE: eliiza/dsp-base
 
 build:common-notebook:
   <<: *build_script
+  stage: build:common-notebook
   variables:
     DOCKERFILE_DIR: common-notebook
     CI_REGISTRY_IMAGE: eliiza/common-notebook
@@ -58,6 +60,7 @@ build:common-notebook:
 # Here, the goal is to tag the "master" branch as "latest"
 push:latest:base:
   <<: *push_script
+  stage: push:base
   variables:
     TAG_NAME: latest
     CI_REGISTRY_IMAGE: eliiza/dsp-base
@@ -67,6 +70,7 @@ push:latest:base:
 
 push:latest:common-notebook:
   <<: *push_script
+  stage: push:common-notebook
   variables:
     TAG_NAME: latest
     CI_REGISTRY_IMAGE: eliiza/common-notebook
@@ -76,6 +80,7 @@ push:latest:common-notebook:
 
 push:tag:base:
   <<: *push_script
+  stage: push:base
   variables:
     TAG_NAME: $CI_COMMIT_REF_NAME
     CI_REGISTRY_IMAGE: eliiza/dsp-base
@@ -85,6 +90,7 @@ push:tag:base:
 
 push:tag:common-notebook:
   <<: *push_script
+  stage: push:common-notebook
   variables:
     TAG_NAME: $CI_COMMIT_REF_NAME
     CI_REGISTRY_IMAGE: eliiza/common-notebook
