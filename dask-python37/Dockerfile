@@ -1,4 +1,4 @@
-FROM eliiza/dsp-base:cuda9.2
+FROM kozai/runtime-python37:latest
 
 USER root
 

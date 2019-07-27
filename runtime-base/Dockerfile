@@ -56,7 +56,7 @@ RUN export CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)" && \
     echo "deb http://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
     curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
 
-# R pre-requisites
+# pre-requisites
 RUN apt-get update --fix-missing && \
     apt-get install -y --no-install-recommends \
     ssh \
@@ -91,22 +91,11 @@ RUN apt-get update --fix-missing && \
     libosmesa6-dev \
     patchelf \
     ffmpeg \
-    xvfb && \
+    xvfb \
+    supervisor \
+    openjdk-8-jre-headless \
+    ca-certificates-java && \
     rm -rf /var/lib/apt/lists/*
-
-###
-### Swift
-###
-ENV SWIFT_VERSION RELEASE-0.3.1
-RUN mkdir -p /opt/swift && \
-   cd /opt/swift && \
-   apt update -y && \
-   apt install -y clang libcurl3 libicu-dev libpython-dev libncurses5-dev libblocksruntime-dev && \
-   wget https://storage.googleapis.com/swift-tensorflow-artifacts/releases/v0.3.1/rc1/swift-tensorflow-$SWIFT_VERSION-cuda9.2-cudnn7-ubuntu18.04.tar.gz && \
-   tar -vxzf swift-tensorflow-$SWIFT_VERSION-cuda9.2-cudnn7-ubuntu18.04.tar.gz && \
-   rm *.tar.gz
-
-
 
 ##
 ## CONDA
@@ -158,41 +147,3 @@ RUN cd /tmp && \
     fix-permissions /home/$NB_USER
 
 ENV TMPDIR /tmp
-
-##
-## PYTHON
-##
-
-# Install extra python libs
-COPY python3/conda-requirements.txt /tmp/python3/conda-requirements.txt
-
-# Conda packages
-RUN conda install --yes \
-    -c blazingdb -c nvidia -c rapidsai -c numba -c conda-forge -c defaults \
-    --file /tmp/python3/conda-requirements.txt && \
-    conda clean -tipsy
-
-# OpenAI GYM package
-WORKDIR $HOME
-RUN git clone https://github.com/openai/gym.git && \
-    cd gym && \
-    pip install -e . && \
-    cd .. && \
-    rm -Rf gym
-
-# PIP packages
-COPY python3/pip-requirements.txt /tmp/python3/pip-requirements.txt
-RUN pip install -r /tmp/python3/pip-requirements.txt
-
-
-###
-### R
-###
-
-# R packages
-COPY R/r-requirements.txt /tmp/r-requirements.txt
-RUN conda install --yes -c r --file /tmp/r-requirements.txt && \
-    conda clean -tipsy
-
-# COPY R/install.R /tmp/install.R
-# RUN Rscript --slave --no-save --no-restore-history /tmp/install.R

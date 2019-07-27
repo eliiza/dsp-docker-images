@@ -1,4 +1,9 @@
-FROM eliiza/dsp-base:cuda9.2
+# FROM eliiza/dsp-base:cuda9.2
+ARG BASE_CONTAINER=eliiza/dsp-base:cuda9.2
+ARG RSTUDIO_PKG=rstudio-server-1.1.463-amd64.deb
+ARG include_capabilities=""
+FROM $BASE_CONTAINER
+SHELL ["/bin/bash", "-c"]
 
 LABEL maintainer="Ray Hilton <ray.hilton@eliiza.com.au>"
 
@@ -6,19 +11,20 @@ USER root
 
 ### rstudio
 # You can use rsession from rstudio's desktop package as well.
-ARG RSTUDIO_PKG=rstudio-server-1.1.463-amd64.deb
-RUN wget -q http://download2.rstudio.org/${RSTUDIO_PKG} && \
+RUN [[ $include_capabilities == *"rstudio"* ]] && \
+    wget -q http://download2.rstudio.org/${RSTUDIO_PKG} && \
     dpkg -i ${RSTUDIO_PKG} && \
-    rm ${RSTUDIO_PKG}
+    rm ${RSTUDIO_PKG} || true
 
-### DASK
-COPY config/dask-config.yaml /etc/dask/config.yaml
+# Swift kernel
+RUN [[ $include_capabilities == *"swift"* ]] && \
+    cd /opt/ && \
+    git clone https://github.com/google/swift-jupyter.git && \
+    chown -R $NB_USER swift-jupyter || true
 
 ##
 ## JUPYTER
 ##
-
-USER root
 
 EXPOSE 8888
 WORKDIR $HOME
@@ -34,15 +40,29 @@ COPY start-singleuser.sh /usr/local/bin/
 COPY config/jupyter_notebook_config.py /etc/jupyter/
 RUN fix-permissions /etc/jupyter/
 
+# Enable Extension manager
+COPY config/plugin.jupyterlab-settings.json ~/.jupyter/lab/user-settings/@jupyterlab/extensionmanager-extension/plugin.jupyterlab-settings
+
+# Make sure CUDA is available
+RUN ldconfig /usr/local/cuda/compat/
+
+COPY hooks/start-notebook.d /usr/local/bin/start-notebook.d
+# COPY hooks/before-notebook.d /usr/local/bin/before-notebook.d
+
 USER $NB_USER
+
+# SWift 
+RUN [[ $include_capabilities == *"swift"* ]] && \
+    cd /opt/swift-jupyter/ && \
+    python3 register.py --sys-prefix --swift-toolchain /opt/swift/ --swift-python-library /usr/lib/x86_64-linux-gnu/libpython3.6m.so --kernel-name "Swift" && \
+    ls -la /opt/conda/share/jupyter/kernels/ || true
 
 # Install Jupyter Notebook and Hub
 RUN conda install --quiet --yes \
     'notebook=5.7.8' \
     'jupyterhub=1.0.0' \
-    'jupyterlab=0.35.5' && \
+    'jupyterlab=1.0.1' && \
     conda clean --all -f -y && \
-    jupyter labextension install @jupyterlab/hub-extension@^0.12.0 && \
     npm cache clean --force && \
     jupyter notebook --generate-config && \
     rm -rf $CONDA_DIR/share/jupyter/lab/staging && \
@@ -81,38 +101,11 @@ RUN jupyter labextension install @jupyterlab/toc
 RUN pip install jupyterlab_latex && \
    jupyter labextension install @jupyterlab/latex
 
-# Install beakerx
-# RUN conda install -c conda-forge ipywidgets beakerx
-
-# Swift kernel
-USER root
-RUN cd /opt/ && \
-    git clone https://github.com/google/swift-jupyter.git && \
-    chown -R $NB_USER swift-jupyter
-USER $NB_USER
-RUN cd /opt/swift-jupyter/ && \
-    python3 register.py --sys-prefix --swift-toolchain /opt/swift/ --swift-python-library /usr/lib/x86_64-linux-gnu/libpython3.6m.so --kernel-name "Swift" && \
-    ls -la /opt/conda/share/jupyter/kernels/
-
 # NBEXTENSIONS
 RUN pip install jupyter_contrib_nbextensions && \
    jupyter contrib nbextension install --sys-prefix && \
    pip install jupyter_nbextensions_configurator && \
    jupyter nbextensions_configurator enable --sys-prefix
-
-USER root
-
-# Enable Extension manager
-COPY config/plugin.jupyterlab-settings.json ~/.jupyter/lab/user-settings/@jupyterlab/extensionmanager-extension/plugin.jupyterlab-settings
-
-# Make sure CUDA is available
-RUN ldconfig /usr/local/cuda/compat/
-
-COPY hooks/start-notebook.d /usr/local/bin/start-notebook.d
-# COPY hooks/before-notebook.d /usr/local/bin/before-notebook.d
-
-USER $NB_UID
-
 
 ### Theia
 RUN pip install python-language-server[all] pyls-mypy pyls-isort pyls-black

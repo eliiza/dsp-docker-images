@@ -1,4 +1,4 @@
-FROM eliiza/dsp-data-science:latest
+FROM kozai/runtime-python37:latest
 ARG TINI_VERSION="v0.18.0"
 
 USER root

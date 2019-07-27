@@ -8,9 +8,8 @@ image: docker:18
 
 stages:
   - build:base
-  - push:base
-  - build:common-notebook
-  - push:common-notebook
+  - build:runtimes
+  - build:apps
 
 before_script:
   # docker login asks for the password to be passed through stdin for security
@@ -26,74 +25,100 @@ before_script:
     # notice the cache-from, which is going to use the image we just pulled locally
     # the built image is tagged locally with the commit SHA, and then pushed to
     # the GitLab registry
-    - >
+    - |
       docker build
       --pull
       --build-arg VCS_REF=$CI_COMMIT_SHA
       --build-arg VCS_URL=$CI_PROJECT_URL
       --cache-from $CI_REGISTRY_IMAGE:latest
       --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+      --build-arg BASE_CONTAINER=$BASE_CONTAINER
+      --build-arg include_capabilities=$CAPABILITIES
       .
-    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
-    - cd ..
+    - |
+      tags="$CI_COMMIT_SHA $CI_COMMIT_REF_SLUG"
+      if [ "$CI_COMMIT_REF_NAME" = "master" ]; then
+        tags="$tags latest"
+      fi
 
-.push_script: &push_script
-  script:
-    - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
-    - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA $CI_REGISTRY_IMAGE:$TAG_NAME
-    - docker push $CI_REGISTRY_IMAGE:$TAG_NAME
+      for tag in $tags; do
+        dest="$CI_REGISTRY_IMAGE:$tag"
+        echo "Tagging image $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA as $dest..."
+        docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA $dest
+        echo "Pushing image $dest..."
+        docker push $dest
+      done
 
 build:base:
   <<: *build_script
   stage: build:base
   variables:
-    DOCKERFILE_DIR: base
-    CI_REGISTRY_IMAGE: eliiza/dsp-base
+    DOCKERFILE_DIR: runtime-base
+    BASE_CONTAINER: nvidia/cuda:9.2-cudnn7-devel-ubuntu18.04
+    CI_REGISTRY_IMAGE: kozai/runtime-base
 
-build:common-notebook:
+build:runtime:python37:
   <<: *build_script
-  stage: build:common-notebook
+  stage: build:runtimes
+  variables:
+    DOCKERFILE_DIR: runtime-python37
+    BASE_CONTAINER: kozai/runtime-base:$CI_COMMIT_SHA
+    CI_REGISTRY_IMAGE: kozai/runtime-python37
+
+build:runtime:r35:
+  <<: *build_script
+  stage: build:runtimes
+  variables:
+    DOCKERFILE_DIR: runtime-r35
+    BASE_CONTAINER: kozai/runtime-base:$CI_COMMIT_SHA
+    CI_REGISTRY_IMAGE: kozai/runtime-r
+
+build:runtime:swift:
+  <<: *build_script
+  stage: build:runtimes
+  variables:
+    DOCKERFILE_DIR: runtime-swift
+    BASE_CONTAINER: kozai/runtime-base:$CI_COMMIT_SHA
+    CI_REGISTRY_IMAGE: kozai/runtime-swift
+
+build:notebook:python37:
+  <<: *build_script
+  stage: build:apps
   variables:
     DOCKERFILE_DIR: common-notebook
-    CI_REGISTRY_IMAGE: eliiza/common-notebook
+    BASE_CONTAINER: kozai/runtime-python37:$CI_COMMIT_SHA
+    CI_REGISTRY_IMAGE: kozai/notebook-python37
 
-# Here, the goal is to tag the "master" branch as "latest"
-push:latest:base:
-  <<: *push_script
-  stage: push:base
-  variables:
-    TAG_NAME: latest
-    CI_REGISTRY_IMAGE: eliiza/dsp-base
-    GIT_STRATEGY: none
-  only:
-    - master
+# build:notebook:r35:
+#   <<: *build_script
+#   stage: build:apps
+#   variables:
+#     DOCKERFILE_DIR: common-notebook
+#     BASE_CONTAINER: kozai/runtime-r:$CI_COMMIT_SHA
+#     CI_REGISTRY_IMAGE: kozai/notebook-r
+#     CAPABILITIES: rstudio
+#
+# build:notebook:swift:
+#   <<: *build_script
+#   stage: build:apps
+#   variables:
+#     DOCKERFILE_DIR: common-notebook
+#     BASE_CONTAINER: kozai/runtime-swift04:$CI_COMMIT_SHA
+#     CI_REGISTRY_IMAGE: kozai/notebook-swift
+#     CAPABILITIES: swift
 
-push:latest:common-notebook:
-  <<: *push_script
-  stage: push:common-notebook
-  variables:
-    TAG_NAME: latest
-    CI_REGISTRY_IMAGE: eliiza/common-notebook
-    GIT_STRATEGY: none
-  only:
-    - master
-
-push:tag:base:
-  <<: *push_script
-  stage: push:base
-  variables:
-    TAG_NAME: $CI_COMMIT_REF_NAME
-    CI_REGISTRY_IMAGE: eliiza/dsp-base
-    GIT_STRATEGY: none
-  only:
-    - cuda9.2
-
-push:tag:common-notebook:
-  <<: *push_script
-  stage: push:common-notebook
-  variables:
-    TAG_NAME: $CI_COMMIT_REF_NAME
-    CI_REGISTRY_IMAGE: eliiza/common-notebook
-    GIT_STRATEGY: none
-  only:
-    - cuda9.2
+# build:dask:python37:
+#   <<: *build_script
+#   stage: build:apps
+#   variables:
+#     DOCKERFILE_DIR: dask
+#     BASE_CONTAINER: eliiza/dsp-base-python37
+#     CI_REGISTRY_IMAGE: eliiza/dask-python37
+#
+# build:spark:python37:
+#   <<: *build_script
+#   stage: build:apps
+#   variables:
+#     DOCKERFILE_DIR: spark
+#     BASE_CONTAINER: eliiza/dsp-base-python37
+#     CI_REGISTRY_IMAGE: eliiza/spark-python37
