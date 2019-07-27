@@ -25,7 +25,7 @@ before_script:
     # notice the cache-from, which is going to use the image we just pulled locally
     # the built image is tagged locally with the commit SHA, and then pushed to
     # the GitLab registry
-    - |
+    - >
       docker build
       --pull
       --build-arg VCS_REF=$CI_COMMIT_SHA
