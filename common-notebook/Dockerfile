@@ -37,12 +37,6 @@ CMD ["start-notebook.sh"]
 COPY start.sh /usr/local/bin/
 COPY start-notebook.sh /usr/local/bin/
 COPY start-singleuser.sh /usr/local/bin/
-COPY config/jupyter_notebook_config.py /etc/jupyter/
-RUN fix-permissions /etc/jupyter/
-
-# Enable Extension manager
-COPY config/plugin.jupyterlab-settings.json ~/.jupyter/lab/user-settings/@jupyterlab/extensionmanager-extension/plugin.jupyterlab-settings
-
 # Make sure CUDA is available
 RUN ldconfig /usr/local/cuda/compat/
 
@@ -50,12 +44,6 @@ COPY hooks/start-notebook.d /usr/local/bin/start-notebook.d
 # COPY hooks/before-notebook.d /usr/local/bin/before-notebook.d
 
 USER $NB_USER
-
-# SWift 
-RUN [[ $include_capabilities == *"swift"* ]] && \
-    cd /opt/swift-jupyter/ && \
-    python3 register.py --sys-prefix --swift-toolchain /opt/swift/ --swift-python-library /usr/lib/x86_64-linux-gnu/libpython3.6m.so --kernel-name "Swift" && \
-    ls -la /opt/conda/share/jupyter/kernels/ || true
 
 # Install Jupyter Notebook and Hub
 RUN conda install --quiet --yes \
@@ -70,57 +58,56 @@ RUN conda install --quiet --yes \
     fix-permissions $CONDA_DIR && \
     fix-permissions /home/$NB_USER
 
-# Quick Open
-# https://github.com/parente/jupyterlab-quickopen
-RUN pip install jupyterlab-quickopen && \
-    jupyter labextension install @parente/jupyterlab-quickopen
+# Enable Extension manager
+COPY config/jupyter_notebook_config.py /etc/jupyter/
+RUN fix-permissions /etc/jupyter/
+COPY config/plugin.jupyterlab-settings.json ~/.jupyter/lab/user-settings/@jupyterlab/extensionmanager-extension/plugin.jupyterlab-settings
 
-# DrawIO
+# SWift
+RUN [[ $include_capabilities == *"swift"* ]] && \
+    cd /opt/swift-jupyter/ && \
+    python3 register.py --sys-prefix --swift-toolchain /opt/swift/ --swift-python-library /usr/lib/x86_64-linux-gnu/libpython3.6m.so --kernel-name "Swift" && \
+    ls -la /opt/conda/share/jupyter/kernels/ || true
+
+RUN pip install \
+      jupyterlab-quickopen \
+      dask_labextension \
+      jupyter-server-proxy \
+      jupyterlab-git \
+      jupyterlab_latex \
+      jupyter_contrib_nbextensions \
+      jupyter_nbextensions_configurator
+RUN jupyter labextension install @parente/jupyterlab-quickopen
 RUN jupyter labextension install jupyterlab-drawio
-
-# Dask UI
-RUN pip install dask_labextension && \
-    jupyter labextension install dask-labextension
-
-# Server proxy
-RUN pip install jupyter-server-proxy jupyter-rsession-proxy && \
-    jupyter labextension install jupyterlab-server-proxy
-
-# Git support: https://github.com/jupyterlab/jupyterlab-git
-RUN jupyter labextension install @jupyterlab/git && \
-    pip install jupyterlab-git && \
-    jupyter serverextension enable --py jupyterlab_git
-
-# TOC
+RUN jupyter labextension install dask-labextension
+RUN jupyter labextension install @jupyter-widgets/jupyterlab-manager
+RUN git clone https://github.com/jupyterhub/jupyter-server-proxy.git /tmp/jupyter-server-proxy && \
+    cd /tmp/jupyter-server-proxy/jupyterlab-server-proxy && \
+    npm install && \
+    npm run build && \
+    jupyter labextension link .
+# RUN jupyter labextension install jupyterlab-server-proxy
+RUN jupyter labextension install @jupyterlab/git
+RUN jupyter serverextension enable --py jupyterlab_git
 RUN jupyter labextension install @jupyterlab/toc
-
-# HTML support: https://github.com/mflevine/jupyterlab_html
-# RUN jupyter labextension install @mflevine/jupyterlab_html
-
-# Latex support: https://github.com/jupyterlab/jupyterlab-latex
-RUN pip install jupyterlab_latex && \
-   jupyter labextension install @jupyterlab/latex
-
-# NBEXTENSIONS
-RUN pip install jupyter_contrib_nbextensions && \
-   jupyter contrib nbextension install --sys-prefix && \
-   pip install jupyter_nbextensions_configurator && \
-   jupyter nbextensions_configurator enable --sys-prefix
+RUN jupyter labextension install @jupyterlab/latex
+RUN jupyter contrib nbextension install --sys-prefix
+RUN jupyter nbextensions_configurator enable --sys-prefix
 
 ### Theia
-RUN pip install python-language-server[all] pyls-mypy pyls-isort pyls-black
 USER root
 COPY theia /opt/theia
-RUN chown -R root /opt/theia && \
+RUN pip install python-language-server[all] pyls-mypy pyls-isort pyls-black && \
+    chown -R root /opt/theia && \
     cd /opt/theia && \
     npm install -g yarn && \
     yarn && \
     yarn theia build && \
     rm -rf /opt/theia/node_modules/electron && \
-    yarn cache clean
-ENV PATH=/opt/theia/node_modules/.bin:$PATH
-RUN cd /opt/theia/proxy && \
+    yarn cache clean && \
+    cd /opt/theia/proxy && \
     python setup.py build && \
-    python setup.py install
+    python setup.py install || true
+ENV PATH=/opt/theia/node_modules/.bin:$PATH
 RUN chown -R $NB_UID /opt/theia
 USER $NB_UID

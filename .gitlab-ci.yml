@@ -89,23 +89,23 @@ build:notebook:python37:
     BASE_CONTAINER: kozai/runtime-python37:$CI_COMMIT_SHA
     CI_REGISTRY_IMAGE: kozai/notebook-python37
 
-# build:notebook:r35:
-#   <<: *build_script
-#   stage: build:apps
-#   variables:
-#     DOCKERFILE_DIR: common-notebook
-#     BASE_CONTAINER: kozai/runtime-r:$CI_COMMIT_SHA
-#     CI_REGISTRY_IMAGE: kozai/notebook-r
-#     CAPABILITIES: rstudio
-#
-# build:notebook:swift:
-#   <<: *build_script
-#   stage: build:apps
-#   variables:
-#     DOCKERFILE_DIR: common-notebook
-#     BASE_CONTAINER: kozai/runtime-swift04:$CI_COMMIT_SHA
-#     CI_REGISTRY_IMAGE: kozai/notebook-swift
-#     CAPABILITIES: swift
+build:notebook:r35:
+  <<: *build_script
+  stage: build:apps
+  variables:
+    DOCKERFILE_DIR: common-notebook
+    BASE_CONTAINER: kozai/runtime-r:$CI_COMMIT_SHA
+    CI_REGISTRY_IMAGE: kozai/notebook-r
+    CAPABILITIES: rstudio
+
+build:notebook:swift:
+  <<: *build_script
+  stage: build:apps
+  variables:
+    DOCKERFILE_DIR: common-notebook
+    BASE_CONTAINER: kozai/runtime-swift04:$CI_COMMIT_SHA
+    CI_REGISTRY_IMAGE: kozai/notebook-swift
+    CAPABILITIES: swift
 
 # build:dask:python37:
 #   <<: *build_script
