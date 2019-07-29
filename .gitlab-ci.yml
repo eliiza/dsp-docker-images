@@ -103,7 +103,7 @@ build:notebook:swift:
   stage: build:apps
   variables:
     DOCKERFILE_DIR: common-notebook
-    BASE_CONTAINER: kozai/runtime-swift04:$CI_COMMIT_SHA
+    BASE_CONTAINER: kozai/runtime-swift:$CI_COMMIT_SHA
     CI_REGISTRY_IMAGE: kozai/notebook-swift
     CAPABILITIES: swift
 
