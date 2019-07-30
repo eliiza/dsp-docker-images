@@ -65,6 +65,5 @@ dependencies:
     - gym
     - dask-ml
     - dask-kubernetes
-    - git+https://github.com/javabrett/dask-xgboost@23-rabit-tracker-bind-address
     - matplotlib
     - seaborn

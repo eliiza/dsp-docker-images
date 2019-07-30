@@ -74,7 +74,7 @@ build:runtime:blazingsql:
     DOCKERFILE_DIR: runtime-python37
     BASE_CONTAINER: kozai/runtime-base:$CI_COMMIT_SHA
     CI_REGISTRY_IMAGE: kozai/runtime-blazingsql
-    CONDA_ENV_FILENAME: python35-blazingsql
+    CONDA_ENV_FILENAME: blazingsql
 
 build:runtime:r35:
   <<: *build_script
