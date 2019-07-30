@@ -34,6 +34,7 @@ before_script:
       --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
       --build-arg BASE_CONTAINER=$BASE_CONTAINER
       --build-arg include_capabilities=$CAPABILITIES
+      --build-arg environment_file=$CONDA_ENV_FILENAME
       .
     - |
       tags="$CI_COMMIT_SHA $CI_COMMIT_REF_SLUG"
@@ -64,6 +65,16 @@ build:runtime:python37:
     DOCKERFILE_DIR: runtime-python37
     BASE_CONTAINER: kozai/runtime-base:$CI_COMMIT_SHA
     CI_REGISTRY_IMAGE: kozai/runtime-python37
+    CONDA_ENV_FILENAME: python37
+
+build:runtime:blazingsql:
+  <<: *build_script
+  stage: build:runtimes
+  variables:
+    DOCKERFILE_DIR: runtime-python37
+    BASE_CONTAINER: kozai/runtime-base:$CI_COMMIT_SHA
+    CI_REGISTRY_IMAGE: kozai/runtime-blazingsql
+    CONDA_ENV_FILENAME: python35-blazingsql
 
 build:runtime:r35:
   <<: *build_script
@@ -88,6 +99,14 @@ build:notebook:python37:
     DOCKERFILE_DIR: common-notebook
     BASE_CONTAINER: kozai/runtime-python37:$CI_COMMIT_SHA
     CI_REGISTRY_IMAGE: kozai/notebook-python37
+
+build:notebook:blazingsql:
+  <<: *build_script
+  stage: build:apps
+  variables:
+    DOCKERFILE_DIR: common-notebook
+    BASE_CONTAINER: kozai/runtime-blazingsql:$CI_COMMIT_SHA
+    CI_REGISTRY_IMAGE: kozai/notebook-blazingsql
 
 build:notebook:r35:
   <<: *build_script
