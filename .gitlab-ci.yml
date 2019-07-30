@@ -124,7 +124,7 @@ build:notebook:r35:
     DOCKERFILE_DIR: common-notebook
     BASE_CONTAINER: kozai/runtime-r:$CI_COMMIT_SHA
     CI_REGISTRY_IMAGE: kozai/notebook-r
-    CAPABILITIES: rstudio python36plus
+    CAPABILITIES: "rstudio python36plus"
 
 build:notebook:swift:
   <<: *build_script
@@ -133,7 +133,7 @@ build:notebook:swift:
     DOCKERFILE_DIR: common-notebook
     BASE_CONTAINER: kozai/runtime-swift:$CI_COMMIT_SHA
     CI_REGISTRY_IMAGE: kozai/notebook-swift
-    CAPABILITIES: swift python36plus
+    CAPABILITIES: "swift python36plus"
 
 # build:dask:python37:
 #   <<: *build_script
