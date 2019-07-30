@@ -33,8 +33,8 @@ before_script:
       --cache-from $CI_REGISTRY_IMAGE:latest
       --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
       --build-arg BASE_CONTAINER=$BASE_CONTAINER
-      --build-arg include_capabilities=$CAPABILITIES
-      --build-arg environment_file=$CONDA_ENV_FILENAME
+      --build-arg include_capabilities="$CAPABILITIES"
+      --build-arg environment_file="$CONDA_ENV_FILENAM"
       .
     - |
       tags="$CI_COMMIT_SHA $CI_COMMIT_REF_SLUG"
