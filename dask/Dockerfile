@@ -1,4 +1,5 @@
-FROM kozai/runtime-python37:latest
+ARG BASE_CONTAINER=kozai/runtime-python37:latest
+FROM $BASE_CONTAINER
 
 USER root
 

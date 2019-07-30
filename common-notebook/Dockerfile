@@ -49,7 +49,11 @@ USER $NB_USER
 RUN conda install --quiet --yes \
     'notebook=5.7.8' \
     'jupyterhub=1.0.0' \
-    'jupyterlab=1.0.1' && \
+    'jupyterlab=1.0.1' \
+    dask_labextension \
+    jupyter-server-proxy \
+    jupyter_contrib_nbextensions \
+    jupyter_nbextensions_configurator && \
     conda clean --all -f -y && \
     npm cache clean --force && \
     jupyter notebook --generate-config && \
@@ -69,14 +73,7 @@ RUN [[ $include_capabilities == *"swift"* ]] && \
     python3 register.py --sys-prefix --swift-toolchain /opt/swift/ --swift-python-library /usr/lib/x86_64-linux-gnu/libpython3.6m.so --kernel-name "Swift" && \
     ls -la /opt/conda/share/jupyter/kernels/ || true
 
-RUN pip install \
-      jupyterlab-quickopen \
-      dask_labextension \
-      jupyter-server-proxy \
-      jupyterlab-git \
-      jupyterlab_latex \
-      jupyter_contrib_nbextensions \
-      jupyter_nbextensions_configurator
+RUN pip install jupyterlab-quickopen
 RUN jupyter labextension install @parente/jupyterlab-quickopen
 RUN jupyter labextension install jupyterlab-drawio
 RUN jupyter labextension install dask-labextension
@@ -86,13 +83,15 @@ RUN git clone https://github.com/jupyterhub/jupyter-server-proxy.git /tmp/jupyte
     npm install && \
     npm run build && \
     jupyter labextension link .
-# RUN jupyter labextension install jupyterlab-server-proxy
-RUN jupyter labextension install @jupyterlab/git
-RUN jupyter serverextension enable --py jupyterlab_git
 RUN jupyter labextension install @jupyterlab/toc
-RUN jupyter labextension install @jupyterlab/latex
 RUN jupyter contrib nbextension install --sys-prefix
 RUN jupyter nbextensions_configurator enable --sys-prefix
+
+RUN [[ $include_capabilities == *"python36plus"* ]] && \
+    pip install jupyterlab_latex && \
+    jupyter labextension install @jupyterlab/latex && \
+    jupyter labextension install @jupyterlab/git && \
+    jupyter serverextension enable --py jupyterlab_git || true
 
 ### Theia
 USER root
