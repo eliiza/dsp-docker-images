@@ -16,6 +16,7 @@ dependencies:
   - jupyter_client
   - numpy
   - pandas
+  - xgboost
   - numexpr=2.6*
   - scipy
   - scikit-learn

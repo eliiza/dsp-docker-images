@@ -47,9 +47,9 @@ USER $NB_USER
 
 # Install Jupyter Notebook and Hub
 RUN conda install --quiet --yes \
-    'notebook=5.7.8' \
+    'notebook=6.0.0' \
     'jupyterhub=1.0.0' \
-    'jupyterlab=1.0.1' \
+    'jupyterlab=1.0.4' \
     dask_labextension \
     jupyter-server-proxy \
     jupyter_contrib_nbextensions \
@@ -78,6 +78,8 @@ RUN jupyter labextension install @parente/jupyterlab-quickopen
 RUN jupyter labextension install jupyterlab-drawio
 RUN jupyter labextension install dask-labextension
 RUN jupyter labextension install @jupyter-widgets/jupyterlab-manager
+RUN jupyter labextension install @jupyterlab/hub-extension
+# RUN jupyter labextension install jupyterlab_toastify jupyterlab_conda
 RUN git clone https://github.com/jupyterhub/jupyter-server-proxy.git /tmp/jupyter-server-proxy && \
     cd /tmp/jupyter-server-proxy/jupyterlab-server-proxy && \
     npm install && \
