@@ -1,4 +1,4 @@
-name: base
+name: blazingsql
 channels:
   - numba
   - rapidsai
