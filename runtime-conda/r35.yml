@@ -1,4 +1,4 @@
-name: r
+name: base
 channels:
   - r
 dependencies:

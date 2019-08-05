@@ -62,7 +62,7 @@ build:runtime:python37:
   <<: *build_script
   stage: build:runtimes
   variables:
-    DOCKERFILE_DIR: runtime-python37
+    DOCKERFILE_DIR: runtime-conda
     BASE_CONTAINER: kozai/runtime-base:$CI_COMMIT_SHA
     CI_REGISTRY_IMAGE: kozai/runtime-python37
     CONDA_ENV_FILENAME: python37
@@ -71,7 +71,7 @@ build:runtime:blazingsql:
   <<: *build_script
   stage: build:runtimes
   variables:
-    DOCKERFILE_DIR: runtime-python37
+    DOCKERFILE_DIR: runtime-conda
     BASE_CONTAINER: kozai/runtime-base:$CI_COMMIT_SHA
     CI_REGISTRY_IMAGE: kozai/runtime-blazingsql
     CONDA_ENV_FILENAME: blazingsql
@@ -80,9 +80,10 @@ build:runtime:r35:
   <<: *build_script
   stage: build:runtimes
   variables:
-    DOCKERFILE_DIR: runtime-r35
+    DOCKERFILE_DIR: runtime-conda
     BASE_CONTAINER: kozai/runtime-base:$CI_COMMIT_SHA
     CI_REGISTRY_IMAGE: kozai/runtime-r
+    CONDA_ENV_FILENAME: 'r35'
 
 build:runtime:swift:
   <<: *build_script
