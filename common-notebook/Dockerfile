@@ -78,11 +78,11 @@ RUN jupyter labextension install dask-labextension
 RUN jupyter labextension install @jupyter-widgets/jupyterlab-manager
 RUN jupyter labextension install @jupyterlab/hub-extension
 # RUN jupyter labextension install jupyterlab_toastify jupyterlab_conda
-RUN git clone https://github.com/jupyterhub/jupyter-server-proxy.git /tmp/jupyter-server-proxy && \
-    cd /tmp/jupyter-server-proxy/jupyterlab-server-proxy && \
-    npm install && \
-    npm run build && \
-    jupyter labextension link .
+RUN cd /tmp/ && \
+    git clone --depth 1 https://github.com/jupyterhub/jupyter-server-proxy && \
+    cd jupyter-server-proxy/jupyterlab-server-proxy && \
+    npm install && npm run build && jupyter labextension link . && \
+    npm run build && jupyter lab build 
 RUN jupyter labextension install @jupyterlab/toc
 RUN jupyter contrib nbextension install --sys-prefix
 RUN jupyter nbextensions_configurator enable --sys-prefix
