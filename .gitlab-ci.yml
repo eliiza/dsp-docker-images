@@ -19,6 +19,9 @@ before_script:
 .build_script: &build_script
   script:
     - cd $DOCKERFILE_DIR
+    - echo "Capabilities: $CAPABILITIES"
+    - echo "Environment File: $CONDA_ENV_FILENAME"
+    - echo "Base container: $BASE_CONTAINER"
     # fetches the latest image (not failing if image is not found)
     - docker pull $CI_REGISTRY_IMAGE:latest || true
     # builds the project, passing proxy variables, and vcs vars for LABEL

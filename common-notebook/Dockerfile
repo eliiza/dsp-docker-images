@@ -1,6 +1,5 @@
 # FROM eliiza/dsp-base:cuda9.2
 ARG BASE_CONTAINER=eliiza/dsp-base:cuda9.2
-ARG RSTUDIO_PKG=rstudio-server-1.1.463-amd64.deb
 ARG include_capabilities=""
 FROM $BASE_CONTAINER
 SHELL ["/bin/bash", "-c"]
@@ -11,16 +10,12 @@ USER root
 
 ### rstudio
 # You can use rsession from rstudio's desktop package as well.
-RUN [[ $include_capabilities == *"rstudio"* ]] && \
-    wget -q http://download2.rstudio.org/${RSTUDIO_PKG} && \
-    dpkg -i ${RSTUDIO_PKG} && \
-    rm ${RSTUDIO_PKG} || true
-
-# Swift kernel
-RUN [[ $include_capabilities == *"swift"* ]] && \
-    cd /opt/ && \
-    git clone https://github.com/google/swift-jupyter.git && \
-    chown -R $NB_USER swift-jupyter || true
+ENV RSTUDIO_PKG=rstudio-server-1.1.463-amd64.deb
+RUN if [ -x "$(command -v R)" ]; then \
+      wget -q http://download2.rstudio.org/$RSTUDIO_PKG && \
+      dpkg -i ${RSTUDIO_PKG} && \
+      rm ${RSTUDIO_PKG}; \
+    fi
 
 ##
 ## JUPYTER
@@ -68,10 +63,13 @@ RUN fix-permissions /etc/jupyter/
 COPY config/plugin.jupyterlab-settings.json ~/.jupyter/lab/user-settings/@jupyterlab/extensionmanager-extension/plugin.jupyterlab-settings
 
 # SWift
-RUN [[ $include_capabilities == *"swift"* ]] && \
-    cd /opt/swift-jupyter/ && \
-    python3 register.py --sys-prefix --swift-toolchain /opt/swift/ --swift-python-library /usr/lib/x86_64-linux-gnu/libpython3.6m.so --kernel-name "Swift" && \
-    ls -la /opt/conda/share/jupyter/kernels/ || true
+RUN if [ -x "$(command -v swift)" ]; then \
+      cd /opt/ && \
+      git clone https://github.com/google/swift-jupyter.git && \
+      cd swift-jupyter && \
+      python3 register.py --sys-prefix --swift-toolchain /opt/swift/ --swift-python-library /usr/lib/x86_64-linux-gnu/libpython3.6m.so --kernel-name "Swift" && \
+      ls -la /opt/conda/share/jupyter/kernels/; \
+    fi
 
 RUN pip install jupyterlab-quickopen
 RUN jupyter labextension install @parente/jupyterlab-quickopen
@@ -89,11 +87,12 @@ RUN jupyter labextension install @jupyterlab/toc
 RUN jupyter contrib nbextension install --sys-prefix
 RUN jupyter nbextensions_configurator enable --sys-prefix
 
-RUN [[ $include_capabilities == *"python36plus"* ]] && \
-    pip install jupyterlab_latex && \
-    jupyter labextension install @jupyterlab/latex && \
-    jupyter labextension install @jupyterlab/git && \
-    jupyter serverextension enable --py jupyterlab_git || true
+RUN if [ -x "$(command -v python3.6)" ] || [ -x "$(command -v python3.7)" ]; then \
+      pip install jupyterlab_latex && \
+      jupyter labextension install @jupyterlab/latex && \
+      jupyter labextension install @jupyterlab/git && \
+      jupyter serverextension enable --py jupyterlab_git; \
+    fi
 
 ### Theia
 USER root

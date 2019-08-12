@@ -13,5 +13,6 @@ RUN mkdir -p /opt/swift && \
    wget https://storage.googleapis.com/swift-tensorflow-artifacts/releases/v0.4/rc4/swift-tensorflow-$SWIFT_VERSION-cuda9.2-cudnn7-ubuntu18.04.tar.gz && \
    tar -vxzf swift-tensorflow-$SWIFT_VERSION-cuda9.2-cudnn7-ubuntu18.04.tar.gz && \
    rm *.tar.gz
+ENV PATH=/opt/swift/usr/bin/:$PATH
 
 USER $NB_USER
