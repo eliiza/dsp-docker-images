@@ -19,9 +19,9 @@ before_script:
 .build_script: &build_script
   script:
     - cd $DOCKERFILE_DIR
-    - echo "Capabilities: $CAPABILITIES"
-    - echo "Environment File: $CONDA_ENV_FILENAME"
-    - echo "Base container: $BASE_CONTAINER"
+    - |
+      echo "Environment File: $CONDA_ENV_FILENAME"
+      echo "Base container: $BASE_CONTAINER"
     # fetches the latest image (not failing if image is not found)
     - docker pull $CI_REGISTRY_IMAGE:latest || true
     # builds the project, passing proxy variables, and vcs vars for LABEL
@@ -36,7 +36,6 @@ before_script:
       --cache-from $CI_REGISTRY_IMAGE:latest
       --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
       --build-arg BASE_CONTAINER=$BASE_CONTAINER
-      --build-arg include_capabilities="$CAPABILITIES"
       --build-arg environment_file="$CONDA_ENV_FILENAME"
       .
     - |
@@ -103,7 +102,6 @@ build:notebook:python37:
     DOCKERFILE_DIR: common-notebook
     BASE_CONTAINER: kozai/runtime-python37:$CI_COMMIT_SHA
     CI_REGISTRY_IMAGE: kozai/notebook-python37
-    CAPABILITIES: python36plus
 
 build:dask:python37:
   <<: *build_script
@@ -128,7 +126,6 @@ build:notebook:r35:
     DOCKERFILE_DIR: common-notebook
     BASE_CONTAINER: kozai/runtime-r:$CI_COMMIT_SHA
     CI_REGISTRY_IMAGE: kozai/notebook-r
-    CAPABILITIES: "rstudio python36plus"
 
 build:notebook:swift:
   <<: *build_script
@@ -137,7 +134,6 @@ build:notebook:swift:
     DOCKERFILE_DIR: common-notebook
     BASE_CONTAINER: kozai/runtime-swift:$CI_COMMIT_SHA
     CI_REGISTRY_IMAGE: kozai/notebook-swift
-    CAPABILITIES: "swift python36plus"
 
 # build:dask:python37:
 #   <<: *build_script
