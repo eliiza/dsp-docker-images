@@ -87,12 +87,12 @@ RUN jupyter labextension install @jupyterlab/toc
 RUN jupyter contrib nbextension install --sys-prefix
 RUN jupyter nbextensions_configurator enable --sys-prefix
 
-RUN if [ -x "$(command -v python3.6)" ] || [ -x "$(command -v python3.7)" ]; then \
-      pip install jupyterlab_latex && \
-      jupyter labextension install @jupyterlab/latex && \
-      jupyter labextension install @jupyterlab/git && \
-      jupyter serverextension enable --py jupyterlab_git; \
-    fi
+# RUN if [ -x "$(command -v python3.6)" ] || [ -x "$(command -v python3.7)" ]; then \
+#       pip install jupyterlab_latex && \
+#       jupyter labextension install @jupyterlab/latex && \
+#       jupyter labextension install @jupyterlab/git && \
+#       jupyter serverextension enable --py jupyterlab_git; \
+#     fi
 
 ### Theia
 USER root
